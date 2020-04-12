@@ -66,7 +66,7 @@ def parse_bounding_boxes_from_xml_dict(xml_dict):
 
 	return bounding_boxes
 
-training_data_dir = Path('/Users/anordin/python_auto_clicker/images')
+training_data_dir = Path('/Users/anordin/personal_code/object_recognition_bot/training_data')
 training_image_paths = training_data_dir.glob('**/*.png')
 columns = [
 	"image_path",

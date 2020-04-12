@@ -1,0 +1,4 @@
+# don't upload all the data.
+training_data/*
+# models are large. don't upload either.
+models/*
