@@ -5,3 +5,5 @@ models/*
 
 class_names.csv
 test_img.png
+
+__pycache__*

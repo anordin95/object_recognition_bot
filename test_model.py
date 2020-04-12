@@ -9,7 +9,7 @@ matplotlib.use('agg')
 import matplotlib.pyplot as plt
 import pandas as pd
 
-def predict(image):
+def predict(image, model):
     image = preprocess_image(image)
     image, scale = resize_image(image)
 
@@ -24,12 +24,18 @@ def predict(image):
 
     return boxes, scores, labels
 
-THRES_SCORE = 0.4
-
-def draw_detections(image, boxes, scores, labels):
+THRES_SCORE = 0.05
+MAX_NUM_BOXES_PER_LABEL = {
+    0 : 3 # at most 3 boxes for label 0: fishing_spot
+}
+def draw_detections(image, boxes, scores, labels, labels_to_names):
+  num_boxes = 0
   for box, score, label in zip(boxes[0], scores[0], labels[0]):        
     # import pdb; pdb.set_trace()
-    if score < THRES_SCORE:
+    print(f"Score: {score}")
+
+    max_num_boxes = MAX_NUM_BOXES_PER_LABEL.get(label, float('inf'))
+    if score < THRES_SCORE or num_boxes >= max_num_boxes:
         break
 
     color = label_color(label)
@@ -40,10 +46,10 @@ def draw_detections(image, boxes, scores, labels):
     caption = "{} {:.3f}".format(labels_to_names[label], score)
     draw_caption(image, b, caption)
 
-def show_detected_objects(image_path):
-    image = read_image_bgr(image_path)
+    num_boxes += 1
 
-    boxes, scores, labels = predict(image)
+def show_detected_objects(image, model, labels_to_names):
+    boxes, scores, labels = predict(image, model)
 
     draw = image.copy()
     draw = cv2.cvtColor(draw, cv2.COLOR_BGR2RGB)
@@ -53,21 +59,24 @@ def show_detected_objects(image_path):
     # ]
     # draw_box(draw, true_box, color=(255, 255, 0))
 
-    draw_detections(draw, boxes, scores, labels)
+    draw_detections(draw, boxes, scores, labels, labels_to_names)
 
-    plt.axis('off')
-    plt.imshow(draw)
-    plt.savefig('fig.png')
+    return draw
+    
+    # plt.axis('off')
+    # plt.imshow(draw)
+    # plt.savefig('fig.png')
 
+if __name__ == '__main__':
+    CLASSES_FILE = 'class_names.csv'
+    MODEL_FILE = 'models/resnet50_csv_20.h5'
+    TEST_IMG_FILE = 'test_img.png'
 
-CLASSES_FILE = 'class_names.csv'
-MODEL_FILE = 'models/resnet50_csv_20.h5'
-TEST_IMG_FILE = 'test_img.png'
+    labels_to_names = pd.read_csv(CLASSES_FILE, header=None).T.loc[0].to_dict()
 
-labels_to_names = pd.read_csv(CLASSES_FILE, header=None).T.loc[0].to_dict()
+    model = load_model(MODEL_FILE, backbone_name='resnet50')
+    # convert to inference model
+    model = convert_model(model)
 
-model = load_model(MODEL_FILE, backbone_name='resnet50')
-# convert to inference model
-model = convert_model(model)
-
-show_detected_objects(TEST_IMG_FILE)
+    image = read_image_bgr(TEST_IMG_FILE)
+    show_detected_objects(image, model)
