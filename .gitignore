@@ -2,3 +2,6 @@
 training_data/*
 # models are large. don't upload either.
 models/*
+
+class_names.csv
+test_img.png
