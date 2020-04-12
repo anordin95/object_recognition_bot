@@ -1,4 +1,6 @@
-## Generating Data
+## Training your own model
+
+#### Generating the data and preparing inputs
 
 1. Take a whole lotta screenshots. Mac OSX: cmd + shift + 4 + spacebar; then mouseclick
 2. Use this tool: https://github.com/tzutalin/labelImg for labelling the images. Follow the setup instructions there.
@@ -24,6 +26,8 @@ Note: use the suggested filename as the save location.
 `$ cat class_names.csv` 
 
 `fishing spot,0`
+
+#### Training the model 
 
 6. Train the net. Example invocation:
 
